@@ -1,0 +1,38 @@
+// server.js (Backend using Node.js and Express)
+const express = require('express');
+const bodyParser = require('body-parser');
+const { PiNetwork } = require('pi-sdk'); // Hypothetical Pi SDK
+
+const app = express();
+app.use(bodyParser.json());
+
+// Initialize Pi Network
+const pi = new PiNetwork({ apiKey: 'your-pi-api-key' });
+
+// Sample API Route for Listing Products
+app.post('/api/listings', (req, res) => {
+  const { title, description, price, sellerId } = req.body;
+  // Add to database (MongoDB)
+  // ListingsCollection.insert({ title, description, price, sellerId });
+  res.json({ message: 'Product listed successfully' });
+});
+
+// Payment Route
+app.post('/api/pay', async (req, res) => {
+  const { buyerId, sellerId, amount } = req.body;
+  
+  try {
+    const transaction = await pi.createPayment({
+      amount: amount,
+      from: buyerId,
+      to: sellerId,
+    });
+    res.json({ transactionId: transaction.id });
+  } catch (error) {
+    res.status(500).json({ error: 'Payment failed' });
+  }
+});
+
+app.listen(5000, () => {
+  console.log('Server is running on port 5000');
+});
